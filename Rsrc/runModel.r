@@ -139,7 +139,8 @@ for(varX in varXs){
               data_type="modelled")
   dataSim <- rbind(dataSim,simX)
 
-  pList[[varX]] <- ggplot() + ggtitle(varX) +
+#make plot
+    pList[[varX]] <- ggplot() + ggtitle(varX) +
     geom_line(dataSim[var_name==varX],mapping=aes(x=n_month,y=value)) +
     geom_point(obsData[var_name==varX],mapping=aes(x=n_month,y=obs,col=data_type))
   print(varX)
