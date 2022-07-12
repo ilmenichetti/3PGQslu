@@ -125,6 +125,7 @@ extractData3PG <- function(out,siteX,varX){
 }
 
 # obsData[var_name=="stem_n"]$var_name <- "stems_n"
+siteX <- 1
 varXs <- unique(obsData$var_name)
 sites <- unique(obsData$site_id)
 varX="height"
