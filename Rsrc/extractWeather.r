@@ -16,6 +16,7 @@ use_python("C:/Python27")
 source_python("Rsrc/clipick.py")
 ##if error:
 # devtools::install_github("rstudio/reticulate")
+# reticulate::install_miniconda()
 
 
 coord <- data.table(lat=56,long=13)
