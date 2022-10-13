@@ -21,3 +21,4 @@ source_python("Rsrc/clipick.py")
 coord <- data.table(lat=56,long=13)
 ciao <- getWDpoints(coord)
 ciao
+#test
