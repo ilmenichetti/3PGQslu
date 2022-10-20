@@ -28,22 +28,24 @@ treat<-list()
 shets_nr<-length(excel_sheets("EKSHÄRAD.xlsx"))
 
 
-for(j in 2:(shets_nr-1)){ # loop j per ogni parcella (foglio excel)
+for(j in 2:(shets_nr)){ # loop j per ogni parcella (foglio excel)
   
 treatment<-str_sub(names(read_xlsx("EKSHÄRAD.xlsx", sheet=j)[1,1]), -1) #extracting treatment name from the first cell
 treat_table<-as.data.frame(read_xlsx("EKSHÄRAD.xlsx", sheet=j, skip=4)) #the data we are going to work in this jth step
 
   
 ## subsetting the revisioins
-treat_table[,1][treat_table[,1]=="."]<-NA
+#treat_table[,1][treat_table[,1]=="."]<-NA
 
-revisions_pos<-which(!is.na(treat_table[,1]))
-revisions_N<-length(revisions_pos)-1 #how many revisions?
+revisions_pos<-which(!is.na(treat_table[,1]) & !treat_table[,1]==".")
+revisions_pos_end<-which(treat_table[,1]==".")
+revisions_N<-length(revisions_pos) #how many revisions?
 
 #loop for revisions
 for(i in 1:revisions_N){
   
-  subset_total<-treat_table[revisions_pos[i]:(revisions_pos[i+1]-1),]
+  #subset_total<-treat_table[revisions_pos[i]:(revisions_pos[i+1]-1),]
+  subset_total<-treat_table[revisions_pos[i]:(revisions_pos_end[i]-1),]
   
   if(i == 1){
   species<-subset_total[2,]$Trädslag}
@@ -101,4 +103,10 @@ for(i in 1:revisions_N){
 
 
 } #closing the j loop, sheet number
+
+
+length(unique(target$treatment))
+length(unique(target$revision))
+
+
 
