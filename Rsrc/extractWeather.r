@@ -20,6 +20,7 @@ source_python("Rsrc/clipick.py")
 # devtools::install_github("rstudio/reticulate")
 # reticulate::install_miniconda()
 
+<<<<<<< HEAD
 ##extract weather data
 WD <- getWDpoints(coords)
 
@@ -36,3 +37,9 @@ for(i in length(WD)){
                 as.numeric(WD[[i]]$hursmin))/2/100)/1000
   WD[[i]]$Precip<-as.numeric(WD[[i]]$pr)
 }
+=======
+coord <- data.table(lat=56,long=13)
+ciao <- getWDpoints(coord)
+ciao
+
+>>>>>>> 0da78d57f38be28cec91e46322cb843b703f1116
