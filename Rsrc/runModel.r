@@ -20,7 +20,7 @@ data_sizeDist <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_sizeDist
 
 ###obsData 
 obsData <- data.table(read_excel("myData/TABELLA_OBS.xlsx"))
-
+unique(obsData$site_id)
 
 
 #siteIDs <- data_site$Site_ID
@@ -97,6 +97,7 @@ pList <- list()
 
 for (i in all_plot) {    #################controlla con Checco se va bene ##########
   siteX = all_plot[i]
+  obsData[siteX]
   for(varX in varXs){
     outX <- extractData3PG(my_out,siteX,varX)
     simX <- data.table(site_id=siteX,n_month=1:length(outX),
