@@ -6,83 +6,40 @@ library(data.table)
 library(ggpubr)
 
 ###select path for data and set to working directory
-## pathX <- "C:/Users/39348/OneDrive/Desktop/LAVORO_CHECCO/CALIBRAZIONE/"
-pathX <- "C:/Users/minunno/Documents/github/3PGQslu/"
+pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
 setwd(pathX)
 
-data_site <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_site')
-data_species <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_species')
-#data_climate <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_climate')
-data_thinning <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_thinnings')
-data_parameters <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_parameters')
-data_sizeDist <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_sizeDist')
+data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
+data_species <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_species')
+data_climate <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet= 'd_climate')
+data_thinning <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_thinnings')
+data_parameters <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_parameters')
+data_sizeDist <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_sizeDist')
 
 ###obsData 
 obsData <- data.table(read_excel("myData/TABELLA_OBS.xlsx"))
 
-
-
-siteIDs <- data_site$siteID
+Plot_ID <- data_site$Plot_ID
 data_species$planted = as.character(data_species$planted)
 data_species$fertility = as.double(data_species$fertility)
 
 
 ##### set data #####
 
-# all_site = data_site[,3:10]
-# all_species = data_species [,3:9]
-# #all_climate = data_climate [,3:12]
-# all_thinning = data_thinning [,3:8]
+all_site = data_site[,5:12]
+all_species = data_species [,4:9]
+all_climate = data_climate [,2:9]
+all_thinning = data_thinning [,3:8]
 all_parameters = data_parameters
 all_sizeDist = data_sizeDist
-# #### Correzione errore anno ###
-my_climate = rbind(d_climate,d_climate)
-my_climate = rbind(my_climate,d_climate)
-nYears = nrow(my_climate)/12
-my_climate$year = as.double(rep(1987:(1987+nYears-1), each = 12))
-my_climate = as.matrix(my_climate)
 
-# ### correzione errore stringa ###
-# my_species <- all_species[1,]
-# my_species$planted = as.character(my_species$planted)
-# my_species$fertility = as.double(my_species$fertility)
-# #
-# #
-# #
-# ####################################################
-# #
-# #
-# #
-# ####select a site and run model
-# input_1225 = read_excel('INPUT_R_1225sk2020_LM.xlsx', sheet = 'input_marklund')
-# #####
-# #### SELECT SITE ###
-# first_site = 1 ####solo per il primo sito
-# last_site = 4 ####solo per il primo sito
-# #site_sliding = function(input_1225,first_site,last_site){    ####dal secondo sito in poi
-# #  if(input_1225$rev[last_site+6]==6){
-# #   last_site = (first_site + 5)
-# #}else{
-# # last_site = (first_site + 3)
-# #  }
-# #}
-# #first_site = (last_site + 1)    ####dal secondo sito in poi
-# #last_site = site_sliding(input_1225,first_site,last_site)  ####dal secondo sito in poi
-# ######
-# # my_out = list()
-# # all_thinning = list() ####chiedi spiegazioni
-# # all_thinning[[1]] = ## e' = a nthinnigSites?
-# #   nthinnigSites =  c(2,5,5,3,5,2,2,5,5,5,2,2,2,5,5,2,3,5,6,5,2,2,5,5)
-# # nSites <- length(nthinnigSites)
-# # first_thin <- c(1,cumsum(nthinnigSites)[1:(nSites-1)]+1) ####chiedi spiegazioni
-# # last_thin <- cumsum(nthinnigSites)
+##
 my_out <- list()
-for(i in siteIDs){
-  my_site <- data_site[data_site$siteID==i,3:10]
-  my_species <- data_species[data_species$siteID == i,3:9]
-  #my_climate = all_climate [i,]
-  my_thinning = data_thinning[data_thinning$siteID==i,3:8]
-  #my_thinning = all_thinning [i,]
+for(i in Plot_ID){
+  my_site <- data_site[data_site$Plot_ID==i,5:12]
+  my_species <- data_species[data_species$Plot_ID == i,4:10]
+  my_climate = all_climate
+  my_thinning = data_thinning[data_thinning$Plot_ID==i,3:8]
   my_parameters = all_parameters
   my_sizeDist = all_sizeDist
   my_out[[i]] = run_3PG(
@@ -111,11 +68,11 @@ for(i in siteIDs){
 #' @export
 #'
 #' @examples
-extractData3PG <- function(out,siteX,varX){
+extractData3PG <- function(out,plotX,varX){
   indX <- which(i_output==varX,arr.ind=T)
   groupID <- i_output[indX[1],]$group_id
   varID <- i_output[indX[1],]$variable_id
-  outX <- out[[siteX]][,,groupID,varID]
+  outX <- out[[plotX]][,,groupID,varID]
   if(all(is.na(outX))){
     stop("check output variable. ",
          "choose variable betwee these: ",
@@ -124,32 +81,41 @@ extractData3PG <- function(out,siteX,varX){
   return(outX)
 }
 
-# obsData[var_name=="stem_n"]$var_name <- "stems_n"
-siteX <- 1
+######### DATA'S SIMULATION #############
+plotX = c(1:length(my_out))
 varXs <- unique(obsData$var_name)
-sites <- unique(obsData$site_id)
-varX="height"
-dataSim <- data.table()
-pList <- list()
-for(varX in varXs){
-  outX <- extractData3PG(my_out,siteX,varX)
-  simX <- data.table(site_id=siteX,n_month=1:length(outX),
-                     layers_id=1,#####!!!!to make general and include in the extractData3PG function
-                     value=outX,var_name=varX,
-              data_type="modelled")
-  dataSim <- rbind(dataSim,simX)
+n_months =read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'n_month')
 
-#make plot
-    pList[[varX]] <- ggplot() + ggtitle(varX) +
-    geom_line(dataSim[var_name==varX],mapping=aes(x=n_month,y=value)) +
-    geom_point(obsData[var_name==varX],mapping=aes(x=n_month,y=obs,col=data_type))
-  print(varX)
-  
+datax_tab = data.table()
+for (i in varXs) {   
+  g = which(i_output[,3]==i) #variable row
+  j = i_output[g,c(1,2)] #####group and variable ID####
+  for (n in plotX) {
+    p = which(n_months$Plot_ID==n)
+    
+    datax_tab = rbind(datax_tab, data.table(Plot_ID = n,
+                                            n_month = n_months$n_mese[which(n_months$Plot_ID==n)],
+                                            group = j[1],
+                                            variable = j[2],
+                                            value = my_out[[n]][n_months$n_mese[which(n_months$Plot_ID==n)],,as.numeric(j[1]),as.numeric(j[2])],
+                                            var_name = i_output[g,3]))
+    
+    print(paste("Plot_ID",i))
+  }
 }
 
+setnames(datax_tab,c('Plot_ID', 'n_month','group','variable','sim','var_name'))
+datax_tab$data_type = "simulated"
+obsXtab = obsData[,c(2:3,5:9)]
+setnames(obsXtab,c('Plot_ID', 'n_month','group','variable','obs','var_name','data_type'))
+setkey(datax_tab, Plot_ID, n_month,group,variable,var_name)
+setkey(obsXtab, Plot_ID, n_month,group,variable,var_name)
+all_data_tab = merge(datax_tab,obsXtab[data_type=='total'])
+plot(all_data_tab$obs, all_data_tab$sim)
+all_data_tab[var_name=='height',plot(obs,sim)]
+i = 3
+all_data_tab[var_name ==varXs[i],plot(obs,sim,main=varXs[i])]
 
-p1 <- ggarrange(plotlist=pList[1:4], ncol=2,nrow=2,common.legend = T)
-p2 <- ggarrange(plotlist=pList[5:8], ncol=2,nrow=2,common.legend = T)
 
-print(p1)
-print(p2)
+#per ogni dato metti in tab mese, layer, gruppo ,variabile
+#calcola il residual= estrai tutti i dati simulati che corrispondono agli osservati (usa il n_mese)
