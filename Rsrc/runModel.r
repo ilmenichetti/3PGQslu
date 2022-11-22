@@ -4,6 +4,14 @@ library(ggplot2)
 library(readxl)
 library(data.table)
 library(ggpubr)
+library(remotes)
+
+library(devtools)
+# vRef <- "master"   #### choose package version to run the model  "master" "v0.2.x"
+# devtools::install_github("ForModLabUHel/r3PG", vRef)
+# devtools::install_github("ilmenichetti/r3PG", vRef)
+devtools::install_github(repo = "ForModLabUHel/r3PG", subdir = "pkg", build_vignettes = T)
+
 
 ###select path for data and set to working directory
 ## pathX <- "C:/Users/39348/OneDrive/Desktop/LAVORO_CHECCO/CALIBRAZIONE/"
@@ -11,6 +19,7 @@ library(ggpubr)
 pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
 setwd(pathX)
 
+<<<<<<< Updated upstream
 data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
 data_species <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_species')
 data_climate <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet= 'd_climate')
@@ -21,6 +30,17 @@ data_sizeDist <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_sizeDist
 ###obsData 
 obsData <- data.table(read_excel("myData/TABELLA_OBS.xlsx"))
 unique(obsData$site_id)
+=======
+data_site <- read_excel('../myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_site')
+data_species <- read_excel('../myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_species')
+#data_climate <- read_excel('myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_climate')
+data_thinning <- read_excel('../myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_thinnings')
+data_parameters <- read_excel('../myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_parameters')
+data_sizeDist <- read_excel('../myData/INPUT_R_1225sk2020_LM.xlsx', sheet = 'd_sizeDist')
+
+###obsData 
+obsData <- data.table(read_excel("../myData/TABELLA_OBS.xlsx"))
+>>>>>>> Stashed changes
 
 
 #siteIDs <- data_site$Site_ID
@@ -63,6 +83,7 @@ for(i in Plot_ID){
 
 
 
+run
 #' extractData3PG
 #'
 #' @param out array with 3PG output

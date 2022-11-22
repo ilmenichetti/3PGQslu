@@ -105,8 +105,19 @@ for(i in 1:revisions_N){
 } #closing the j loop, sheet number
 
 
-length(unique(target$treatment))
-length(unique(target$revision))
+
+
+
+
+## writing the output file 
+
+#read the template
+
+#write
+
+
+
+
 
 
 
