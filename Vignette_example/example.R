@@ -39,6 +39,8 @@ my_parameters<-read_excel("birch_scenario.xlsx", sheet="d_parameters")
 my_sizeDist<-read_excel("birch_scenario.xlsx", sheet="d_sizeDist")
 my_parsQlitter<-read_excel("birch_scenario.xlsx", sheet="d_parsQlitter")
 
+my_soil<-read_excel("birch_scenario.xlsx", sheet="d_soil")[,-1]
+
 def_parameters<-read_csv("./csv/d_parameters.csv")
 # 
 # #reorder the parameter list
@@ -63,8 +65,6 @@ def_parameters<-read_csv("./csv/d_parameters.csv")
 # my_sizeDist<-read_csv("./csv/d_sizeDist.csv")
 # my_parsQlitter<-read_csv("./csv/d_parsQlitter.csv")
 # 
-# 
-#my_species<-my_species[2,]
 
 my_out = run_3PG(
   site        = my_site,
@@ -72,7 +72,8 @@ my_out = run_3PG(
   climate     = my_climate,
   thinning    = my_thinning,
   parameters  = my_parameters,
-  parsQlitter  = my_parsQlitter,
+  parsQlitter = my_parsQlitter,
+  soil        = my_soil,
   size_dist   = my_sizeDist,
   settings    = list(light_model = 2, transp_model = 2, phys_model = 2,
                      height_model = 1, correct_bias = 0, calculate_d13c = 0),
