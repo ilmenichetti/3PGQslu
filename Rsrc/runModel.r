@@ -7,8 +7,9 @@ library(ggpubr)
 
 ###select path for data and set to working directory
 ## pathX <- "C:/Users/39348/OneDrive/Desktop/LAVORO_CHECCO/CALIBRAZIONE/"
-pathX <- "C:/Users/minunno/Documents/github/3PGQslu/"
-# pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
+# pathX <- "C:/Users/minunno/Documents/github/3PGQslu/"
+pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
+
 setwd(pathX)
 
 data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
@@ -22,8 +23,6 @@ data_sizeDist <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_sizeDist
 obsData <- data.table(read_excel("myData/TABELLA_OBS.xlsx"))
 unique(obsData$site_id)
 
-
-#siteIDs <- data_site$Site_ID
 Plot_ID <- data_site$Plot_ID
 data_species$planted = as.character(data_species$planted)
 data_species$fertility = as.double(data_species$fertility)
@@ -75,11 +74,11 @@ for(i in Plot_ID){
 #' @export
 #'
 #' @examples
-extractData3PG <- function(out,siteX,varX){
+extractData3PG <- function(out,plotX,varX){
   indX <- which(i_output==varX,arr.ind=T)
   groupID <- i_output[indX[1],]$group_id
   varID <- i_output[indX[1],]$variable_id
-  outX <- out[[siteX]][,,groupID,varID]
+  outX <- out[[plotX]][,,groupID,varID]
   if(all(is.na(outX))){
     stop("check output variable. ",
          "choose variable betwee these: ",
@@ -88,47 +87,41 @@ extractData3PG <- function(out,siteX,varX){
   return(outX)
 }
 
-# obsData[var_name=="stem_n"]$var_name <- "stems_n"
-all_plot <- c(1:length(my_out))
-#siteX <- 1
-varXs <- unique(obsData$var_name)
-sites <- unique(obsData$site_id)
-varX="dbh"
-dataSim <- data.table()
-pList <- list()
 
-for (i in all_plot) {    #################controlla con Checco se va bene ##########
-  siteX = all_plot[i]
-  obsData[siteX]
-  for(varX in varXs){
-    outX <- extractData3PG(my_out,siteX,varX)
-    simX <- data.table(site_id=siteX,n_month=1:length(outX),
-                       layers_id=1,#####!!!!to make general and include in the extractData3PG function
-                       value=outX,var_name=varX,
-                       data_type="modelled")
-    dataSim <- rbind(dataSim,simX)
+######### DATA'S SIMULATION #############
+plotX = c(1:length(my_out))
+varXs <- unique(obsData$var_name)
+n_months =read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'n_month')
+
+datax_tab = data.table()
+for (i in varXs) {   
+  g = which(i_output[,3]==i) #variable row
+  j = i_output[g,c(1,2)] #####group and variable ID####
+  for (n in plotX) {
+    p = which(n_months$Plot_ID==n)
     
-    obsData$n_month <- as.integer(obsData$n_month)
-    obsData$obs <- as.numeric(obsData$obs)
-    #make plot
-    pList[[varX]] <- ggplot() + ggtitle(varX) +
-      geom_line(dataSim[var_name==varX],mapping=aes(x=n_month,y=value)) +
-      geom_point(obsData[site_id==i & var_name==varX],mapping=aes(x=n_month,y=obs,col=as.factor(data_type)))
-    print(varX)
+    datax_tab = rbind(datax_tab, data.table(Plot_ID = n,
+                                            n_month = n_months$n_mese[which(n_months$Plot_ID==n)],
+                                            group = j[1],
+                                            variable = j[2],
+                                            value = my_out[[n]][n_months$n_mese[which(n_months$Plot_ID==n)],,as.numeric(j[1]),as.numeric(j[2])],
+                                            var_name = i_output[g,3]))
+    
+    print(paste("Plot_ID",i))
   }
 }
 
-
-p1 <- ggarrange(plotlist=pList[1:4], ncol=2,nrow=2,common.legend = T)
-p2 <- ggarrange(plotlist=pList[5:8], ncol=2,nrow=2,common.legend = T)
-
-print(p1)
-print(p2)
-
-######
-which(i_output[,3]=="dbh")
-i_output[20,c(1,2)]
-my_out[[1]][72,,2,5]####[[]] indica il Plot_ID? devi creare una lista di tabelle datax_list 
+setnames(datax_tab,c('Plot_ID', 'n_month','group','variable','sim','var_name'))
+datax_tab$data_type = "simulated"
+obsXtab = obsData[,c(2:3,5:9)]
+setnames(obsXtab,c('Plot_ID', 'n_month','group','variable','obs','var_name','data_type'))
+setkey(datax_tab, Plot_ID, n_month,group,variable,var_name)
+setkey(obsXtab, Plot_ID, n_month,group,variable,var_name)
+all_data_tab = merge(datax_tab,obsXtab[data_type=='total'])
+plot(all_data_tab$obs, all_data_tab$sim)
+all_data_tab[var_name=='stems_n',plot(obs,sim)]
+i = 1
+all_data_tab[var_name ==varXs[i],plot(obs,sim,main=varXs[i])]
 
 #per ogni dato metti in tab mese, layer, gruppo ,variabile
 #calcola il residual= estrai tutti i dati simulati che corrispondono agli osservati (usa il n_mese)
