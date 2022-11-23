@@ -7,6 +7,7 @@ library(ggpubr)
 
 ###select path for data and set to working directory
 pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
+# pathX <- "C:/Users/minunno/Documents/Github/3PGQslu"
 setwd(pathX)
 
 data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
@@ -56,7 +57,60 @@ for(i in Plot_ID){
   print(paste("siteID",i))
 }
 
+#' Title extractSims
+#'extract data from a list of simulations and add to the data table
+#' @param plotID plot ID
+#' @param modOut list of model output
+#' @param obsData tables with observed data and the "coordinates of data points
+#' @param dataType data type: total trees, remaining, thinned, dead trees
+#' @param colSobsData columns of obsData where the coordinates are stored
+#'
+#' @return
+#' @export
+#'
+#' @examples
+extractSims <- function(plotID, modOut,obsData,
+                  dataType="total",colSobsData = 3:6){
+  # select a plot
+  plotX <- plotID
+  # select 3pg out of that plot
+  modOutX <- modOut[[plotX]]
+  #select the index argument
+  dataX <- obsData[Plot_ID == plotX & data_type==dataType]
+  dataIndX <- as.matrix(dataX[,..colSobsData])
+  ###extractvector of Data
+  simsX <- modOutX[dataIndX]
+  ###add data to table
+  dataX$sims <- simsX
+  dataX$obs <- as.numeric(dataX$obs)
+  return(dataX)
+}
 
+#example:
+##plot all sites
+dataForPlot <- data.table()
+for(plotID in 1:57){
+  dataX <- extractSims(plotID = plotID,obsData = obsData,modOut = my_out)
+  dataForPlot <- rbind(dataForPlot,dataX)
+}
+varXs <- unique(dataTest$var_name)
+for(varX in varXs){
+  print(ggplot(dataForPlot[var_name==varX],aes(x=obs, y=sims)) + ggtitle(varX)+
+    geom_point() + geom_abline(slope = 1,intercept = 0))
+}
+
+
+# extract data and plot for a single site
+plotID = 1
+dataX <- extractSims(plotID = plotID,obsData = obsData,modOut = my_out)
+
+coordX <- unique(dataX[,5:6])
+for(i in 1:nrow(coordX)){
+  groupX <- unlist(coordX[i,1])
+  variableX <- unlist(coordX[i,2])
+  plot(my_out[[plotID]][,,groupX,variableX],main=varXs[i])
+  dataX[group==groupX & variable==variableX,points(n_month,obs,col=2,pch=20)]
+}
 
 #' extractData3PG
 #'
