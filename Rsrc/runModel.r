@@ -7,8 +7,8 @@ library(ggpubr)
 
 ###select path for data and set to working directory
 ## pathX <- "C:/Users/39348/OneDrive/Desktop/LAVORO_CHECCO/CALIBRAZIONE/"
-# pathX <- "C:/Users/minunno/Documents/github/3PGQslu/"
-pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
+pathX <- "C:/Users/minunno/Documents/github/3PGQslu/"
+# pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
 setwd(pathX)
 
 data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
@@ -49,8 +49,10 @@ for(i in Plot_ID){
   my_sizeDist = all_sizeDist
   my_out[[i]] = run_3PG(
     site        = my_site,
+  #  soil = soilCinit,
     species     = my_species,
     climate     = my_climate,
+    # parsQlitter = parQlit,
     thinning    = my_thinning,
     parameters  = my_parameters,
     size_dist   = my_sizeDist,
