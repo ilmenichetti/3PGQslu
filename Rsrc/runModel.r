@@ -6,10 +6,7 @@ library(data.table)
 library(ggpubr)
 
 ###select path for data and set to working directory
-## pathX <- "C:/Users/39348/OneDrive/Desktop/LAVORO_CHECCO/CALIBRAZIONE/"
-# pathX <- "C:/Users/minunno/Documents/github/3PGQslu/"
 pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
-
 setwd(pathX)
 
 data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
@@ -21,7 +18,6 @@ data_sizeDist <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_sizeDist
 
 ###obsData 
 obsData <- data.table(read_excel("myData/TABELLA_OBS.xlsx"))
-unique(obsData$site_id)
 
 Plot_ID <- data_site$Plot_ID
 data_species$planted = as.character(data_species$planted)
@@ -48,10 +44,8 @@ for(i in Plot_ID){
   my_sizeDist = all_sizeDist
   my_out[[i]] = run_3PG(
     site        = my_site,
-  #  soil = soilCinit,
     species     = my_species,
     climate     = my_climate,
-    # parsQlitter = parQlit,
     thinning    = my_thinning,
     parameters  = my_parameters,
     size_dist   = my_sizeDist,
@@ -87,7 +81,6 @@ extractData3PG <- function(out,plotX,varX){
   return(outX)
 }
 
-
 ######### DATA'S SIMULATION #############
 plotX = c(1:length(my_out))
 varXs <- unique(obsData$var_name)
@@ -122,6 +115,7 @@ plot(all_data_tab$obs, all_data_tab$sim)
 all_data_tab[var_name=='stems_n',plot(obs,sim)]
 i = 1
 all_data_tab[var_name ==varXs[i],plot(obs,sim,main=varXs[i])]
+
 
 #per ogni dato metti in tab mese, layer, gruppo ,variabile
 #calcola il residual= estrai tutti i dati simulati che corrispondono agli osservati (usa il n_mese)
