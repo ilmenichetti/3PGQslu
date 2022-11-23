@@ -112,8 +112,8 @@ setkey(datax_tab, Plot_ID, n_month,group,variable,var_name)
 setkey(obsXtab, Plot_ID, n_month,group,variable,var_name)
 all_data_tab = merge(datax_tab,obsXtab[data_type=='total'])
 plot(all_data_tab$obs, all_data_tab$sim)
-all_data_tab[var_name=='height',plot(obs,sim)]
-i = 3
+all_data_tab[var_name=='stems_n',plot(obs,sim)]
+i = 1
 all_data_tab[var_name ==varXs[i],plot(obs,sim,main=varXs[i])]
 
 
