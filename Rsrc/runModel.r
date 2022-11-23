@@ -123,6 +123,5 @@ all_data_tab[var_name=='stems_n',plot(obs,sim)]
 i = 1
 all_data_tab[var_name ==varXs[i],plot(obs,sim,main=varXs[i])]
 
-
 #per ogni dato metti in tab mese, layer, gruppo ,variabile
 #calcola il residual= estrai tutti i dati simulati che corrispondono agli osservati (usa il n_mese)
