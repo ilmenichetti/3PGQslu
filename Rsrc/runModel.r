@@ -7,6 +7,7 @@ library(ggpubr)
 
 ###select path for data and set to working directory
 pathX <- "C:/Users/39348/OneDrive/Documents/Github/3PGQslu"
+# pathX <- "C:/Users/minunno/Documents/Github/3PGQslu"
 setwd(pathX)
 
 data_site <- read_excel('myData/INPUT_R_ALL_SITES.xlsx', sheet = 'd_site')
@@ -52,11 +53,66 @@ for(i in Plot_ID){
     settings    = list(light_model = 2, transp_model = 2, phys_model = 2,
                        height_model = 1, correct_bias = 0, calculate_d13c = 0),
     check_input = TRUE, df_out = F)
-
+  
   print(paste("siteID",i))
 }
-  
 
+
+
+#' Title extractSims
+#'extract data from a list of simulations and add to the data table
+#' @param plotID plot ID
+#' @param modOut list of model output
+#' @param obsData tables with observed data and the "coordinates of data points
+#' @param dataType data type: total trees, remaining, thinned, dead trees
+#' @param colSobsData columns of obsData where the coordinates are stored
+#'
+#' @return
+#' @export
+#'
+#' @examples
+extractSims <- function(plotID, modOut,obsData,
+                        dataType="total",colSobsData = 3:6){
+  # select a plot
+  plotX <- plotID
+  # select 3pg out of that plot
+  modOutX <- modOut[[plotX]]
+  #select the index argument
+  dataX <- obsData[Plot_ID == plotX & data_type==dataType]
+  dataIndX <- as.matrix(dataX[,..colSobsData])
+  ###extractvector of Data
+  simsX <- modOutX[dataIndX]
+  ###add data to table
+  dataX$sims <- simsX
+  dataX$obs <- as.numeric(dataX$obs)
+  return(dataX)
+}
+
+#example:
+##plot all sites
+dataForPlot <- data.table()
+for(plotID in 1:57){
+  dataX <- extractSims(plotID = plotID,obsData = obsData,modOut = my_out)
+  dataForPlot <- rbind(dataForPlot,dataX)
+}
+varXs <- unique(dataForPlot$var_name)
+for(varX in varXs){
+  print(ggplot(dataForPlot[var_name==varX],aes(x=obs, y=sims)) + ggtitle(varX)+
+          geom_point() + geom_abline(slope = 1,intercept = 0))
+}
+
+
+# extract data and plot for a single site
+plotID = 1
+dataX <- extractSims(plotID = plotID,obsData = obsData,modOut = my_out)
+
+coordX <- unique(dataX[,5:6])
+for(i in 1:nrow(coordX)){
+  groupX <- unlist(coordX[i,1])
+  variableX <- unlist(coordX[i,2])
+  plot(my_out[[plotID]][,,groupX,variableX],main=varXs[i])
+  dataX[group==groupX & variable==variableX,points(n_month,obs,col=2,pch=20)]
+}
 
 #' extractData3PG
 #'
@@ -119,3 +175,37 @@ all_data_tab[var_name ==varXs[i],plot(obs,sim,main=varXs[i])]
 
 #per ogni dato metti in tab mese, layer, gruppo ,variabile
 #calcola il residual= estrai tutti i dati simulati che corrispondono agli osservati (usa il n_mese)
+#### my_out[[Plot_n]][month,layer,group_id,var_id] #####
+
+################### RESIDUALS ##################################
+####### Select a variable to calculate residuals ########
+print(varXs)
+variablex = 'height'
+
+#Residuals_tab =data.table()
+
+g = which(i_output[,3]==variablex) 
+c1 =  as.numeric(i_output[g,1])
+c2 = as.numeric(i_output[g,2])
+sim_data=data.table()
+for (p in Plot_ID) {
+  value_month = obsData[obsData$Plot_ID==p & obsData$var_name == variablex  &obsData$data_type == 'total',3]
+  sim_tab = my_out[[p]]
+  
+  sim_data = rbind(sim_data, data.table(Plot_ID = p,
+                                        n_month = value_month,
+                                        value = my_out[[p]][unlist(value_month),1,c1,c2])
+  )
+}
+
+
+obs_variablex = as.numeric(unlist(obsData[obsData$var_name == variablex & obsData$data_type == 'total',7]))
+variablex_res = data.table(Plot_ID = sim_data$Plot_ID,
+                           n_months = sim_data$n_month.n_month,
+                           var_name = variablex,
+                           sim_value= sim_data$value,
+                           obs_value= obs_variablex)
+
+variablex_res$residual_value =  variablex_res$obs_value -variablex_res$sim_value
+Residuals_tab = rbind(Residuals_tab,variablex_res)
+write.csv(Residuals_tab, 'myData/Residuals_tab.csv')
