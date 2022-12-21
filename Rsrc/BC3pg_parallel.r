@@ -11,10 +11,16 @@ library(parallel)
 
 source("Rsrc/functions.r")
 load('myData/input3pgLists.rdata')
+
 sites <- c(1:26,28:57)#length(allInputs$site)
 pErr <- c(0.1,0.001)
 nCores = 1
 climate <- climate[1:1000,]
+
+## calibration settings
+iterations=3e3
+thin = 1 #100
+nChains <- 3
 
 # ####runModel for multiple sites and report likelihood
 # ll <- numeric(nSites)
@@ -57,10 +63,7 @@ prior <- createUniformPrior(lower = par$min, upper = par$max)
 ### Create Bayesian Setup
 BCmod <- createBayesianSetup(logLike, prior, best = par$best, 
                                 names = par$names)
-## Running MCMC
-iterations=3e3
-thin = 1 #100
-nChains <- 3
+
 settings <- list(iterations = iterations, nrChains = nChains,thin=thin)
 
 calibration <- runMCMC(BCmod, sampler="DREAMzs", settings = settings)
