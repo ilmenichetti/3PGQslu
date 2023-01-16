@@ -77,7 +77,6 @@ C_init(lat=45,
        SI=23,
        site        = my_site,
        climate     = my_climate,
-       size_dist   = my_sizeDist,
        settings    = list(light_model = 2, transp_model = 2, phys_model = 2,
                           height_model = 1, correct_bias = 0, calculate_d13c = 0))
 
@@ -290,7 +289,6 @@ return(list(main_species=main_species, main_thinning=main_thinning))
 }
 
 
-sim_thinning(SI=23, lat=45)
 
 
 C_init<-function(lat,
@@ -301,7 +299,7 @@ C_init<-function(lat,
                  thinning=NULL,
                  parameters=NULL,
                  parsQlitter=NULL,
-                 size_dist,
+                 size_dist=NULL,
                  settings = list(light_model = 2, transp_model = 2, phys_model = 2,
                                  height_model = 1, correct_bias = 0, calculate_d13c = 0)){
 
@@ -311,7 +309,7 @@ C_init<-function(lat,
   if(is.null(species)){warning("you did not supply a species matrix, assuming plantation date as 1950. This will not influence the final result")}
   if(is.null(thinning) & !is.null(species)){stop("you supplied a species matrix, you need to supply also the associated thinning matrix")}
   if(is.null(species) & !is.null(thinning)){stop("you supplied a thinning matrix, you need to supply also the associated species matrix")}
-  if(i!s.null(thinning) & !is.null(species)){warning("you supplied a species matrix and the associated thinning matrix, these will be used in the initialization simulation. Please make sure that your thinning plan includes a whole cultural cycle")}
+  if(!is.null(thinning) & !is.null(species)){warning("you supplied a species matrix and the associated thinning matrix, these will be used in the initialization simulation. Please make sure that your thinning plan includes a whole cultural cycle")}
   
   
   if(is.null(species)){
@@ -406,7 +404,18 @@ C_init<-function(lat,
     parameters=my_parameters
   }
   
-
+  #if the size distribution parameters are null, then the initialization assumes spruce parameterization
+  if(is.null(size_dist)){
+    size_dist<- list(-2.023,  1.136,  0.051, -0.049,  0.382,  0.328,  0.562,  0.037, -0.254, -0.117,  0.391,  0.847, -0.004, -0.001, -0.187, -3.366,  2.369,  0.222,
+                     -0.033,  0.402,  0.160,  0.461,  0.273, -0.241, -0.085, -0.937,  2.005, -0.735, -0.228, -0.1940)
+    names(size_dist)<-c("Dscale0",      "DscaleB",      "Dscalerh",     "Dscalet",      "DscaleC",      "Dshape0",      "DshapeB",      "Dshaperh",    
+                   "Dshapet",      "DshapeC",      "Dlocation0",   "DlocationB",   "Dlocationrh",  "Dlocationt",   "DlocationC",   "wsscale0",    
+                   "wsscaleB",     "wsscalerh",    "wsscalet",     "wsscaleC",     "wsshape0",     "wsshapeB",     "wsshaperh",    "wsshapet",    
+                   "wsshapeC",     "wslocation0",  "wslocationB",  "wslocationrh", "wslocationt",  "wslocationC")
+    
+    size_dist<-data.frame(parameter=names(size_dist), "Picea abies"=as.vector(unlist(size_dist)))
+    colnames(size_dist)[2]="Picea abies"
+  }
   
   init_out = run_3PG(
     site        = main_site,
